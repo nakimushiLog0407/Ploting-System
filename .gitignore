@@ -1,0 +1,15 @@
+
+# Temporary source files
+input.txt
+restored.txt
+.source-store.lock
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Editor and OS files
+.DS_Store
+*.swp
+*.swo
