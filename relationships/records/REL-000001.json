@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "relationship_id": "REL-000001",
+  "request_id": "chatgpt-test-related-to-20261014-001",
+  "from_candidate_id": "CAND-000001",
+  "to_candidate_id": "CAND-000002",
+  "relation": "related_to",
+  "status": "proposed",
+  "evidence": "テスト用の関連づけ提案。両候補は同じテスト原文 SRC-000001 に由来するが、意味上の関連性は未確定。",
+  "created_at": "2026-10-14T13:55:00+00:00",
+  "reviewed_by": null,
+  "reviewed_at": null
+}
