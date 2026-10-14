@@ -1,0 +1,34 @@
+name: Test candidate decisions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-decisions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify existing archives
+        run: |
+          python scripts/source_store.py verify
+          python scripts/candidate_store.py verify
+          python scripts/decision_store.py verify
+      - name: Run all automated tests
+        run: python -m unittest discover -s tests -v
+      - name: Test decision without saving to repository
+        run: |
+          python - <<'PY'
+          import json
+          from scripts.decision_store import record, verify_all
+          result = record("stage3-approval-dryrun-001", "CAND-000001", "approved", "Test only; not a real user approval", True)
+          assert result["status"] == "saved"
+          assert verify_all() >= 1
+          print(json.dumps(result, ensure_ascii=False))
+          print("Dry-run only. Decision file is NOT committed.")
+          PY
