@@ -1,0 +1,95 @@
+
+name: Save source test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-archive-main
+  cancel-in-progress: false
+
+jobs:
+  save-and-verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Save original text
+        run: |
+          python scripts/source_store.py save \
+            --file tests/fixtures/stage1_sample.txt \
+            --request-id stage1-test-001
+
+      - name: Check duplicate registration
+        run: |
+          python scripts/source_store.py save \
+            --file tests/fixtures/stage1_sample.txt \
+            --request-id stage1-test-001
+
+      - name: Verify archive and exact bytes
+        run: |
+          python scripts/source_store.py verify
+
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          original = Path("tests/fixtures/stage1_sample.txt").read_bytes()
+
+          records = sorted(Path("sources/records").glob("SRC-*.json"))
+          matching = [
+              json.loads(p.read_text(encoding="utf-8"))
+              for p in records
+              if json.loads(p.read_text(encoding="utf-8")).get("request_id")
+                 == "stage1-test-001"
+          ]
+
+          if len(matching) != 1:
+              sys.exit("ERROR: Expected exactly one saved record")
+
+          source_id = matching[0]["source_id"]
+
+          result = subprocess.run(
+              [sys.executable, "scripts/source_store.py", "read", source_id],
+              capture_output=True,
+              check=True,
+          )
+
+          if original != result.stdout:
+              sys.exit("ERROR: Original and restored bytes differ")
+
+          print("EXACT BYTE MATCH: OK")
+          print("SOURCE ID:", source_id)
+          PY
+
+      - name: Run automated tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Commit saved archive
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add sources/records sources/payloads
+
+          if git diff --cached --quiet; then
+            echo "No new archive files to commit"
+          else
+            git commit -m "Archive Stage 1 test source"
+            git push origin HEAD:main
+          fi
