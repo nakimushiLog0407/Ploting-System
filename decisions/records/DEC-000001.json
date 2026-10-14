@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "decision_id": "DEC-000001",
+  "request_id": "chatgpt-user-approval-CAND-000001-20261014",
+  "candidate_id": "CAND-000001",
+  "candidate_sha256": "6573304da0d0709ecd2fb3a421baa81de817764639ce9ea2696d432226dc585f",
+  "decision": "approved",
+  "actor": "user",
+  "reason": "",
+  "created_at": "2026-10-14T10:31:00+00:00"
+}
