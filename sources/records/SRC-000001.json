@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "source_id": "SRC-000001",
+  "request_id": "stage1-test-001",
+  "payload_path": "sources/payloads/SRC-000001.txt",
+  "encoding": "UTF-8",
+  "sha256": "c5df31af0f24a4dcad71ebc59ccaeb09fb7c2766b4a044ee69926067fa4a7194",
+  "byte_length": 147,
+  "created_at": "2026-10-14T09:48:04.101047+00:00"
+}
