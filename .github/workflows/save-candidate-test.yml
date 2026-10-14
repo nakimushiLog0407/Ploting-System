@@ -1,0 +1,57 @@
+name: Save candidate test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: candidate-archive-main
+  cancel-in-progress: false
+
+jobs:
+  save-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Save candidate and verify
+        run: |
+          python scripts/source_store.py verify
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from scripts.candidate_store import save, verify_all
+          source_id = "SRC-000001"
+          text = Path(f"sources/payloads/{source_id}.txt").read_text(encoding="utf-8")
+          quote = "「改行と空白を確認します」"
+          if text.count(quote) != 1:
+              raise SystemExit("Expected one occurrence of test quotation")
+          start = text.index(quote)
+          result = save("stage2-candidate-test-001", "dialogue", "原文中のテスト用引用", source_id, start, start + len(quote))
+          print(json.dumps(result, ensure_ascii=False))
+          duplicate = save("stage2-candidate-test-001", "dialogue", "原文中のテスト用引用", source_id, start, start + len(quote))
+          if duplicate["status"] != "already_saved":
+              raise SystemExit("Idempotency test failed")
+          print("CANDIDATE VERIFY COUNT:", verify_all())
+          PY
+          python -m unittest discover -s tests -v
+      - name: Commit candidate record
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add candidates/records
+          if git diff --cached --quiet; then
+            echo "No new candidate to commit"
+          else
+            git commit -m "Archive Stage 2 candidate test"
+            git push origin HEAD:main
+          fi
