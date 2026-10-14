@@ -1,0 +1,103 @@
+
+name: Test source span
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-span:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Extract and verify source span
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          source_id = "SRC-000001"
+          expected = "「改行と空白を確認します」"
+
+          original = Path(
+              f"sources/payloads/{source_id}.txt"
+          ).read_text(encoding="utf-8")
+
+          occurrences = original.count(expected)
+          if occurrences != 1:
+              sys.exit(
+                  f"Expected exactly one occurrence, "
+                  f"found {occurrences}"
+              )
+
+          start = original.index(expected)
+          end = start + len(expected)
+
+          print(f"Source ID: {source_id}")
+          print(f"Start: {start}")
+          print(f"End: {end}")
+
+          result = subprocess.run(
+              [
+                  sys.executable,
+                  "scripts/span_store.py",
+                  "extract",
+                  source_id,
+                  str(start),
+                  str(end),
+              ],
+              capture_output=True,
+              text=True,
+              check=True,
+          )
+
+          span = json.loads(result.stdout)
+
+          if span["quote"] != expected:
+              sys.exit("Extracted quotation mismatch")
+
+          if span["status"] != "candidate":
+              sys.exit("Unexpected candidate status")
+
+          output = Path("span-test-result.json")
+          output.write_text(
+              json.dumps(
+                  span,
+                  ensure_ascii=False,
+                  indent=2,
+              ),
+              encoding="utf-8",
+          )
+
+          subprocess.run(
+              [
+                  sys.executable,
+                  "scripts/span_store.py",
+                  "verify",
+                  str(output),
+              ],
+              check=True,
+          )
+
+          print("SPAN EXTRACTION: OK")
+          print("SPAN VERIFICATION: OK")
+          PY
+
+      - name: Upload test result
+        uses: actions/upload-artifact@v4
+        with:
+          name: span-test-result
+          path: span-test-result.json
+          if-no-files-found: error
