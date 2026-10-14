@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "candidate_id": "CAND-000001",
+  "request_id": "stage2-candidate-test-001",
+  "kind": "dialogue",
+  "content": "原文中のテスト用引用",
+  "evidence": {
+    "source_id": "SRC-000001",
+    "source_sha256": "c5df31af0f24a4dcad71ebc59ccaeb09fb7c2766b4a044ee69926067fa4a7194",
+    "unit": "unicode_codepoint",
+    "start": 17,
+    "end": 30,
+    "quote": "「改行と空白を確認します」",
+    "quote_sha256": "aca50177bc1fd1be5516e4083428110670676450021933c2765ff2ba69b6377b"
+  },
+  "status": "candidate",
+  "created_at": "2026-10-14T10:16:57.358847+00:00"
+}
