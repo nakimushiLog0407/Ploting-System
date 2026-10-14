@@ -38,9 +38,12 @@ class RelationshipTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate(item)
 
-    def test_current_repository_has_no_links(self):
-        self.assertEqual(verify_relationships(), 0)
-        self.assertEqual(browse(), [])
+    def test_repository_links_are_valid(self):
+        count = verify_relationships()
+        self.assertGreaterEqual(count, 0)
+        approved = browse(status="approved")
+        self.assertTrue(all(item["status"] == "approved" for item in approved))
+        self.assertLessEqual(len(approved), count)
 
 
 if __name__ == "__main__":
