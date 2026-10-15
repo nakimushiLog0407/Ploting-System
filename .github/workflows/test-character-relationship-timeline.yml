@@ -1,0 +1,22 @@
+name: Test character relationship timeline
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify approved character relationships
+        run: python scripts/character_relation_types.py verify
+      - name: Run full test suite
+        run: python -m unittest discover -s tests -v
+      - name: Show relationship timeline summary
+        run: python scripts/character_relationship_timeline.py --summary
