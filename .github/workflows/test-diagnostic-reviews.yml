@@ -1,0 +1,24 @@
+name: Test diagnostic reviews
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify diagnostic findings
+        run: python scripts/canon_diagnostics.py --summary
+      - name: Verify review history
+        run: python scripts/diagnostic_review.py verify
+      - name: Run all tests
+        run: python -m unittest discover -s tests -v
+      - name: Show active and historical reviews
+        run: python scripts/diagnostic_review.py list
