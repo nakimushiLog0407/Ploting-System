@@ -1,0 +1,30 @@
+name: Test effective canon integration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify original and effective canon
+        run: |
+          python scripts/canon_catalog.py --summary
+          python scripts/canon_revision.py verify
+          python scripts/effective_canon.py --summary
+      - name: Verify downstream views
+        run: |
+          python scripts/character_dossier.py --summary
+          python scripts/setting_dossier.py --summary
+          python scripts/story_chronology_view.py --summary
+          python scripts/story_relation_alignment.py --summary
+          python scripts/canon_diagnostics.py --summary
+      - name: Run full test suite
+        run: python -m unittest discover -s tests -v
