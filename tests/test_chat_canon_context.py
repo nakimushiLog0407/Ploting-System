@@ -36,7 +36,7 @@ class ChatCanonContextTests(unittest.TestCase):
 
     def test_unexpected_canon_fails_closed(self):
         with self.assertRaises(ValueError):
-            build(self.candidates, self.decisions, self.canon + [{"candidate_id": "CAND-000002"}])
+            build(self.candidates, self.decisions, self.canon + [{"candidate_id": "CAND-000002", "content": "Pending"}])
 
     def test_approved_revision_effective_content(self):
         current = {"CAND-000001": "Revised approved"}
