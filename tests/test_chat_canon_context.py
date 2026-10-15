@@ -18,7 +18,7 @@ class ChatCanonContextTests(unittest.TestCase):
             {"candidate_id": "CAND-000001", "decision": "approved"},
             {"candidate_id": "CAND-000003", "decision": "rejected"},
         ]
-        self.canon = [{"candidate_id": "CAND-000001"}]
+        self.canon = [{"candidate_id": "CAND-000001", "content": "Approved"}]
 
     def test_separation(self):
         result = build(self.candidates, self.decisions, self.canon)
