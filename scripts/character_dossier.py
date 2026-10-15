@@ -5,8 +5,9 @@ import json
 import sys
 from canon_catalog import build_catalog
 from relationship_workflow import effective
+from character_relation_types import records as typed_records
 
-def dossiers(entries, relations):
+def dossiers(entries, relations, typed_relations=()):
     by_id = {e["candidate_id"]: e for e in entries}
     output = []
     for character in entries:
@@ -35,10 +36,32 @@ def dossiers(entries, relations):
                 "decision_id": other["decision_id"],
             })
         linked.sort(key=lambda e: (e["relation"], e["candidate_id"]))
+        typed = []
+        for rel in typed_relations:
+            if rel["status"] != "approved":
+                continue
+            a, b = rel["from_character_id"], rel["to_character_id"]
+            if cid not in (a, b):
+                continue
+            other_id = b if a == cid else a
+            if other_id not in by_id or by_id[other_id]["kind"] != "character":
+                raise ValueError("Approved typed relation references missing character")
+            typed.append({
+                "relation_id": rel["relation_id"],
+                "relation_type": rel["relation_type"],
+                "direction": "outgoing" if a == cid else "incoming",
+                "character_id": other_id,
+                "content": by_id[other_id]["content"],
+                "phase": rel["phase"],
+                "description": rel["description"],
+                "evidence": rel["evidence"],
+            })
+        typed.sort(key=lambda e: (e["character_id"], e["phase"], e["relation_id"]))
         output.append({
             "character_id": cid, "content": character["content"],
             "source_id": character["source_id"], "quote": character["quote"],
             "decision_id": character["decision_id"], "related": linked,
+            "typed_relationships": typed,
         })
     return sorted(output, key=lambda e: e["character_id"])
 
@@ -48,12 +71,13 @@ def main():
     parser.add_argument("--summary", action="store_true")
     args = parser.parse_args()
     try:
-        items = dossiers(build_catalog(), effective("approved"))
+        items = dossiers(build_catalog(), effective("approved"), typed_records())
         if args.character_id:
             items = [i for i in items if i["character_id"] == args.character_id]
             if not items:
                 raise ValueError("Approved character not found")
-        result = {"characters": len(items), "links": sum(len(i["related"]) for i in items)} if args.summary else {"characters": items}
+        result = {"characters": len(items), "links": sum(len(i["related"]) for i in items),
+                  "typed_relationships": sum(len(i["typed_relationships"]) for i in items)} if args.summary else {"characters": items}
         print(json.dumps(result, ensure_ascii=False, indent=2))
     except (ValueError, KeyError, TypeError, OSError, UnicodeError) as exc:
         print("ERROR: " + str(exc), file=sys.stderr)
