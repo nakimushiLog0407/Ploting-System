@@ -7,6 +7,7 @@ and never saved as canon; unlisted phases remain unordered.
 import argparse
 import json
 import sys
+from effective_canon import effective_entries
 from canon_catalog import build_catalog
 from character_relation_types import records
 from story_timeline import approved_phases
@@ -62,7 +63,7 @@ def main():
         if args.use_approved_order and args.phase_order:
             raise ValueError("Choose either approved or temporary phase order")
         order = approved_phases() if args.use_approved_order else args.phase_order
-        result = timeline(build_catalog(), records(), args.character_id, order)
+        result = timeline(effective_entries(build_catalog()), records(), args.character_id, order)
         if args.summary:
             result = {"pairs": len(result["pairs"]),
                       "ordered": sum(len(x["ordered"]) for x in result["pairs"]),
