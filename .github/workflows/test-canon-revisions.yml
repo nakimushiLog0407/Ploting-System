@@ -1,0 +1,24 @@
+name: Test canon revisions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify original canon
+        run: python scripts/canon_catalog.py --summary
+      - name: Verify revision history
+        run: python scripts/canon_revision.py verify
+      - name: Run all tests
+        run: python -m unittest discover -s tests -v
+      - name: Show revision history summary
+        run: python scripts/canon_revision.py verify
