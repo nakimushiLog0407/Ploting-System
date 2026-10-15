@@ -1,0 +1,22 @@
+name: Test Japanese project queries
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify Japanese dashboard command
+        run: python scripts/chat_query.py "制作状況"
+      - name: Verify Japanese review inbox command
+        run: python scripts/chat_query.py "確認待ち"
+      - name: Run all tests
+        run: python -m unittest discover -s tests -v
