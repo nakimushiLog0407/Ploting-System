@@ -1,0 +1,32 @@
+name: Test project status export
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Export aggregate-only status
+        run: python scripts/project_status_export.py --output /tmp/project-status.json
+      - name: Validate JSON schema and absence of story text
+        run: |
+          python - <<'PY'
+          import json
+          with open('/tmp/project-status.json', encoding='utf-8') as f:
+              data = json.load(f)
+          assert data['schema_version'] == 1
+          assert data['contains_story_text'] is False
+          assert data['contains_identifiers'] is False
+          assert data['read_only'] is True
+          print(json.dumps(data, ensure_ascii=False, indent=2))
+          PY
+      - name: Run full test suite
+        run: python -m unittest discover -s tests -v
