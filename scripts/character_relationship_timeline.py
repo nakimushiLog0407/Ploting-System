@@ -9,6 +9,7 @@ import json
 import sys
 from canon_catalog import build_catalog
 from character_relation_types import records
+from story_timeline import approved_phases
 
 
 def timeline(entries, relations, character_id=None, phase_order=()):
@@ -55,9 +56,13 @@ def main():
     p.add_argument("--phase-order", nargs="*", default=[],
                    help="Explicit temporary display order; no order is inferred or saved")
     p.add_argument("--summary", action="store_true")
+    p.add_argument("--use-approved-order", action="store_true")
     args = p.parse_args()
     try:
-        result = timeline(build_catalog(), records(), args.character_id, args.phase_order)
+        if args.use_approved_order and args.phase_order:
+            raise ValueError("Choose either approved or temporary phase order")
+        order = approved_phases() if args.use_approved_order else args.phase_order
+        result = timeline(build_catalog(), records(), args.character_id, order)
         if args.summary:
             result = {"pairs": len(result["pairs"]),
                       "ordered": sum(len(x["ordered"]) for x in result["pairs"]),
