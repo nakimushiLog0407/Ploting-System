@@ -18,5 +18,7 @@ jobs:
         run: python scripts/decision_store.py verify
       - name: Verify approved and unapproved separation
         run: python scripts/chat_canon_context.py
+      - name: Verify approved canon revision overlays
+        run: python scripts/canon_revision.py verify
       - name: Run all tests
         run: python -m unittest discover -s tests -v
