@@ -7,6 +7,7 @@ are not treated as canon. Relationship types are never assumed mutually exclusiv
 import argparse
 import json
 import sys
+from effective_canon import effective_entries
 from canon_catalog import build_catalog
 from story_timeline import approved_phases
 from event_placement import records as placement_records
@@ -94,7 +95,7 @@ def main():
     parser.add_argument("--summary", action="store_true")
     args = parser.parse_args()
     try:
-        result = diagnose(build_catalog(), approved_phases(),
+        result = diagnose(effective_entries(build_catalog()), approved_phases(),
                           placement_records(), order_records(), relation_records())
         if args.summary:
             result = {"structural_count": result["structural_count"],
