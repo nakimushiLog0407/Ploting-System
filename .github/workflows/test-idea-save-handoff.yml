@@ -1,0 +1,20 @@
+name: Test idea save handoff
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify reviewed idea handoff
+        run: python -m unittest discover -s tests -p 'test_idea_save_handoff.py' -v
+      - name: Run full test suite
+        run: python -m unittest discover -s tests -v
