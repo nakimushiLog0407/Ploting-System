@@ -8,6 +8,7 @@ import argparse
 import json
 import sys
 
+from effective_canon import effective_entries
 from canon_catalog import build_catalog
 from story_timeline import approved_phases
 from event_placement import records as placement_records
@@ -68,7 +69,7 @@ def main():
         phases = approved_phases()
         if args.phase is not None and args.phase not in phases:
             raise ValueError("Approved phase not found")
-        result = build_view(build_catalog(), phases, placement_records(), order_records())
+        result = build_view(effective_entries(build_catalog()), phases, placement_records(), order_records())
         if args.phase is not None:
             result["phases"] = [x for x in result["phases"] if x["phase"] == args.phase]
         if args.summary:
