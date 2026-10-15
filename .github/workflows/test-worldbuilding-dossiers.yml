@@ -1,0 +1,26 @@
+name: Test worldbuilding dossiers
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify existing records
+        run: |
+          python scripts/source_store.py verify
+          python scripts/candidate_store.py verify
+          python scripts/decision_store.py verify
+          python scripts/relationship_workflow.py verify
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Show worldbuilding dossier summary
+        run: python scripts/setting_dossier.py --summary
