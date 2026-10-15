@@ -1,0 +1,24 @@
+name: Test typed character integration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify typed character records
+        run: python scripts/character_relation_types.py verify
+      - name: Run full test suite
+        run: python -m unittest discover -s tests -v
+      - name: Show dossier summary
+        run: python scripts/character_dossier.py --summary
+      - name: Show graph summary
+        run: python scripts/character_relationship_graph.py --summary
