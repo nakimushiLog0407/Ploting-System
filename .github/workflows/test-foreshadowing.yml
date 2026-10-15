@@ -1,0 +1,22 @@
+name: Test foreshadowing
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify foreshadowing registry
+        run: python scripts/foreshadowing.py verify
+      - name: Show foreshadowing overview
+        run: python scripts/foreshadowing.py list
+      - name: Run full test suite
+        run: python -m unittest discover -s tests -v
