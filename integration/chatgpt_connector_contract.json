@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "repository": "nakimushiLog0407/Ploting-System",
+  "branch": "main",
+  "mode": "chatgpt_github_connector",
+  "execution": "chatgpt_initiated_only",
+  "openai_api_required": false,
+  "github_actions_required_for_reads": false,
+  "read_only_queries": {
+    "source_records": "sources/records/SRC-*.json",
+    "source_payloads": "sources/payloads/SRC-*.txt",
+    "candidate_records": "candidates/records/CAND-*.json",
+    "decision_records": "decisions/records/DEC-*.json",
+    "plot_cards": "plot_cards/proposals/*.json",
+    "prose_drafts": "prose_drafts/proposals/*.json"
+  },
+  "constraints": [
+    "Check current repository files; never infer that a Python script executed just because its file was read.",
+    "Read source and approval decisions before claiming a candidate is canon.",
+    "Do not treat proposed or rejected items as approved.",
+    "Never run OpenAI API or create API credentials.",
+    "Never write story content to a public repository.",
+    "Before changing any file, show the exact proposed change and obtain user approval.",
+    "Do not claim GitHub Actions output is a persisted repository file."
+  ]
+}
