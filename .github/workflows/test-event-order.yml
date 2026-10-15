@@ -1,0 +1,26 @@
+name: Test event order
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify approved phases
+        run: python scripts/story_timeline.py verify
+      - name: Verify event placements
+        run: python scripts/event_placement.py verify
+      - name: Verify event precedence
+        run: python scripts/event_order.py verify
+      - name: Run full test suite
+        run: python -m unittest discover -s tests -v
+      - name: Show event order overview
+        run: python scripts/event_order.py overview --summary
