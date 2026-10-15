@@ -1,0 +1,22 @@
+name: Test paginated canon lookup
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify approved-only canon lookup
+        run: python scripts/chat_canon_page.py --group approved --limit 10
+      - name: Verify pending ideas are separate
+        run: python scripts/chat_canon_page.py --group pending --limit 10
+      - name: Run all tests
+        run: python -m unittest discover -s tests -v
