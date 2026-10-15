@@ -3,6 +3,7 @@
 import argparse
 import json
 import sys
+from effective_canon import effective_entries
 from canon_catalog import build_catalog
 from relationship_workflow import effective
 from character_relation_types import records as typed_records
@@ -71,7 +72,7 @@ def main():
     parser.add_argument("--summary", action="store_true")
     args = parser.parse_args()
     try:
-        items = dossiers(build_catalog(), effective("approved"), typed_records())
+        items = dossiers(effective_entries(build_catalog()), effective("approved"), typed_records())
         if args.character_id:
             items = [i for i in items if i["character_id"] == args.character_id]
             if not items:
