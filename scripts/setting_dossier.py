@@ -7,6 +7,7 @@ import argparse
 import json
 import sys
 
+from effective_canon import effective_entries
 from canon_catalog import build_catalog
 from relationship_workflow import effective
 from setting_classification import all_classifications, CATEGORIES
@@ -71,7 +72,7 @@ def main():
     try:
         if args.query is not None and not args.query.strip():
             raise ValueError("Empty query")
-        result = build_dossiers(build_catalog(), effective("approved"), all_classifications())
+        result = build_dossiers(effective_entries(build_catalog()), effective("approved"), all_classifications())
         if args.setting_id:
             result = [x for x in result if x["setting_id"] == args.setting_id]
             if not result:
