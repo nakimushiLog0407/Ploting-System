@@ -34,6 +34,27 @@ class SettingDossierTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build_dossiers(self.entries[:1], [self.link])
 
+    def test_approved_category_visible(self):
+        classifications = [{"candidate_id": "CAND-100001", "category": "place", "status": "approved"}]
+        result = build_dossiers(self.entries, [], classifications)
+        self.assertEqual(result[0]["category"], "place")
+
+    def test_pending_or_rejected_classification_is_unclassified(self):
+        for status in ("proposed", "rejected"):
+            classifications = [{"candidate_id": "CAND-100001", "category": "place", "status": status}]
+            result = build_dossiers(self.entries, [], classifications)
+            self.assertEqual(result[0]["category"], "unclassified")
+
+    def test_no_classification_is_unclassified(self):
+        self.assertEqual(build_dossiers(self.entries, [])[0]["category"], "unclassified")
+
+    def test_conflicting_approved_categories_fail(self):
+        with self.assertRaises(ValueError):
+            build_dossiers(self.entries, [], [
+                {"candidate_id": "CAND-100001", "category": "place", "status": "approved"},
+                {"candidate_id": "CAND-100001", "category": "term", "status": "approved"},
+            ])
+
     def test_cli_runs_with_current_archive(self):
         p = subprocess.run([sys.executable, str(ROOT / "scripts" / "setting_dossier.py"), "--summary"], capture_output=True, text=True)
         self.assertEqual(p.returncode, 0, p.stderr)
