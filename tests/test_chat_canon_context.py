@@ -38,6 +38,30 @@ class ChatCanonContextTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             build(self.candidates, self.decisions, self.canon + [{"candidate_id": "CAND-000002"}])
 
+    def test_approved_revision_effective_content(self):
+        current = {"CAND-000001": "Revised approved"}
+        history = [{"candidate_id": "CAND-000001", "revision_id": "REV-000001",
+                    "status": "approved", "after": "Revised approved"},
+                   {"candidate_id": "CAND-000001", "revision_id": "REV-000002",
+                    "status": "proposed", "after": "Not approved"}]
+        result = build(self.candidates, self.decisions, self.canon, current, history)
+        entry = result["approved_canon"][0]
+        self.assertEqual(entry["content"], "Revised approved")
+        self.assertEqual(entry["original_content"], "Approved")
+        self.assertEqual(entry["approved_revision_ids"], ["REV-000001"])
+        self.assertEqual(result["pending_revisions_not_canon"][0]["proposed_content_not_canon"],
+                         "Not approved")
+
+    def test_revision_for_unapproved_candidate_rejected(self):
+        history = [{"candidate_id": "CAND-000002", "revision_id": "REV-000003",
+                    "status": "proposed", "after": "Not allowed"}]
+        with self.assertRaises(ValueError):
+            build(self.candidates, self.decisions, self.canon, None, history)
+
+    def test_incomplete_effective_canon_rejected(self):
+        with self.assertRaises(ValueError):
+            build(self.candidates, self.decisions, self.canon, {})
+
     def test_duplicate_decisions_rejected(self):
         with self.assertRaises(ValueError):
             build(self.candidates, self.decisions + self.decisions[:1], self.canon)
