@@ -37,10 +37,10 @@ class ProseDiagnosticsTests(unittest.TestCase):
         self.assertIn("PENDING_PROSE_REVISION", self.codes(revisions=revisions))
         self.assertEqual(self.drafts[0]["text"], "承認済み文章")
 
-    def test_duplicate_scene_positions_reported(self):
+    def test_duplicate_scene_positions_rejected_by_existing_plot_rules(self):
         self.cards.append({"plot_id": "PLOT-100004", "kind": "scene", "title": "場面C",
                            "status": "approved", "parent_chapter_id": "PLOT-100001", "position": 1})
-        self.assertIn("DUPLICATE_SCENE_POSITION", self.codes())
+        with self.assertRaisesRegex(ValueError, "Duplicate approved plot position"):\n            self.codes()
 
     def test_no_semantic_claims(self):
         result = diagnose(self.cards, [], self.drafts, [])
