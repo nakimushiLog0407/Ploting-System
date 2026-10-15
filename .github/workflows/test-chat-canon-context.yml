@@ -1,0 +1,22 @@
+name: Test ChatGPT canon context
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify candidate and decision records
+        run: python scripts/decision_store.py verify
+      - name: Verify approved and unapproved separation
+        run: python scripts/chat_canon_context.py
+      - name: Run all tests
+        run: python -m unittest discover -s tests -v
