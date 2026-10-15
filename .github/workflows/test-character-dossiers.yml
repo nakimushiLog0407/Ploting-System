@@ -1,0 +1,26 @@
+name: Test character dossiers
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify source, candidates, decisions and relationships
+        run: |
+          python scripts/source_store.py verify
+          python scripts/candidate_store.py verify
+          python scripts/decision_store.py verify
+          python scripts/relationship_workflow.py verify
+      - name: Run all tests
+        run: python -m unittest discover -s tests -v
+      - name: Generate read-only character dossiers
+        run: python scripts/character_dossier.py --summary
